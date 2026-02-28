@@ -6,6 +6,9 @@
 #include "Abilities/GameplayAbility.h"
 #include "WarriorGameplayAbility.generated.h"
 
+class UPawnCombatComponent;
+class UWarriorAbilitySystemComponent;
+
 UENUM()
 enum class EWarriorAbilityActivationPolicy : uint8
 {
@@ -33,5 +36,12 @@ protected:
 		//~ Begin UGameplayAbility Interface.
 		virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled) override;
 		//~ End UGameplayAbility Interface
+		
+		UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
+		UPawnCombatComponent* GetPawnCombatComponentFromActorInfo() const;
+
+		UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
+		UWarriorAbilitySystemComponent* GetWarriorAbilitySystemComponentFromActorInfo() const;
+		
 
 };

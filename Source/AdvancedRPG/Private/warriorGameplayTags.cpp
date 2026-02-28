@@ -7,7 +7,34 @@
 
 namespace WarriorGameplayTags
 {
-	/*nput Tags*/
+	/* Input Tags */
 	UE_DEFINE_GAMEPLAY_TAG(Input_Move, "Input.Move");
 	UE_DEFINE_GAMEPLAY_TAG(Input_Look, "Input.Look");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Equip_Axe, "Input.Equip.Axe");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Unequip_Axe, "Input.Unequip.Axe");
+
+	UE_DEFINE_GAMEPLAY_TAG(Input_Equip_FrostGiant, "Input.Equip.FrostGiant");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Unequip_FrostGiant, "Input.Unequip.FrostGiant");
+
+	UE_DEFINE_GAMEPLAY_TAG(Input_Equip_DualBladeAxe1, "Input.Equip.DualBladeAxe1");
+	UE_DEFINE_GAMEPLAY_TAG(Input_Unequip_DualBladeAxe1, "Input.Unequip.DualBladeAxe1");
+
+
+
+	/* Player Weapons Tags */
+	UE_DEFINE_GAMEPLAY_TAG(Player_Weapon_Axe, "Player.Weapon.Axe");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Weapon_FrostGiant, "Player.Weapon.FrostGiant");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Weapon_DualBladeAxe1, "Player.Weapon.DualBladeAxe1");
+
+	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Equip_Axe, "Player.Event.Equip.Axe");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Equip_FrostGiant, "Player.Event.Equip.FrostGiant");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Equip_DualBladeAxe1, "Player.Event.Equip.DualBladeAxe1");
+
+	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Unequip_Axe, "Player.Event.Unequip.Axe");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Unequip_FrostGiant, "Player.Event.Unequip.FrostGiant");
+	UE_DEFINE_GAMEPLAY_TAG(Player_Event_Unequip_DualBladeAxe1, "Player.Event.Unequip.DualBladeAxe1");
+
+
+
+
 }

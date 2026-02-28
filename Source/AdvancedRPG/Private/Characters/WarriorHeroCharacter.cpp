@@ -11,6 +11,8 @@
 #include "WarriorGameplayTags.h"
 #include "AbilitySystem/WarriorAbilitySystemComponent.h"
 #include "DataAssets/StartUpData/DataAsset_HeroStartUpData.h"
+#include "Components/Combat/HeroCombatComponent.h"
+#include "Controllers/WarriorHeroController.h"
 
 #include "WarriorDebugHelper.h"
 
@@ -34,6 +36,8 @@ AWarriorHeroCharacter::AWarriorHeroCharacter()
     FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
     FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
     FollowCamera->bUsePawnControlRotation = false;
+
+    HeroCombatComponent = CreateDefaultSubobject<UHeroCombatComponent>(TEXT("HeroCombatComponent"));
 
     // 4. Movement Tuning
     GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -63,6 +67,7 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
     // Binding Move and Look using Gameplay Tags
     WarriorInput->BindNativeInputAction(InputConfigUDataAsset, WarriorGameplayTags::Input_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
     WarriorInput->BindNativeInputAction(InputConfigUDataAsset, WarriorGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
+    WarriorInput->BindAbilityInputAction(InputConfigUDataAsset, this, &AWarriorHeroCharacter::Input_AbilityInputPressed, &AWarriorHeroCharacter::Input_AbilityInputReleased);
 }
 
 void AWarriorHeroCharacter::PossessedBy(AController* NewController)
@@ -110,4 +115,28 @@ void AWarriorHeroCharacter::Input_Look(const FInputActionValue& Value)
     {
         AddControllerPitchInput(LookAxisVector.Y);
     }
+
+
 }
+
+void AWarriorHeroCharacter::Input_AbilityInputPressed(
+    const FInputActionValue& Value,
+    FGameplayTag InInputTag)
+{
+    if (WarriorAbilitySystemComponent)
+    {
+        WarriorAbilitySystemComponent->OnAbilityInputPressed(InInputTag);
+    }
+}
+
+void AWarriorHeroCharacter::Input_AbilityInputReleased(
+    const FInputActionValue& Value,
+    FGameplayTag InInputTag)
+{
+    if (WarriorAbilitySystemComponent)
+    {
+        WarriorAbilitySystemComponent->OnAbilityInputReleased(InInputTag);
+    }
+}
+
+

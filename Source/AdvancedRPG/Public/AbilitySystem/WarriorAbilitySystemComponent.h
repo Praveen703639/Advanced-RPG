@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemComponent.h"
+#include "GameplayTagContainer.h"
+
 #include "WarriorAbilitySystemComponent.generated.h"
 
 /**
@@ -13,5 +15,8 @@ UCLASS()
 class ADVANCEDRPG_API UWarriorAbilitySystemComponent : public UAbilitySystemComponent
 {
 	GENERATED_BODY()
-	
+
+public:
+	void OnAbilityInputPressed(const FGameplayTag& InInputTagToGive);
+	void OnAbilityInputReleased(const FGameplayTag& InInputTagToGive);
 };
