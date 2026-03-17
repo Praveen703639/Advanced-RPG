@@ -53,32 +53,59 @@ void AWarriorHeroCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
     // Ensure the Data Asset is assigned (usually in Blueprint)
     checkf(InputConfigUDataAsset, TEXT("Input Config is null! Forget to assign a valid Data Asset?"));
 
-    ULocalPlayer* LocalPlayer = GetController<APlayerController>()->GetLocalPlayer();
+    // Cache the player controller for safe access
+    APlayerController* PlayerController = GetController<APlayerController>();
+    if (!PlayerController)
+    {
+        return;
+    }
+
+    // Get the local player from the controller
+    ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+    if (!LocalPlayer)
+    {
+        return;
+    }
+
+    // Get the enhanced input subsystem for this local player
     UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
 
-    if (Subsystem)
+    // Apply the default input mapping context with priority 0 (base priority)
+    // Weapon contexts will be added later with priority 1, allowing them to override base inputs
+    if (Subsystem && InputConfigUDataAsset->DefaultMappingContext)
     {
-        // Use the Mapping Context from your Data Asset
         Subsystem->AddMappingContext(InputConfigUDataAsset->DefaultMappingContext, 0);
     }
 
+    // Cast to our custom input component to access our custom binding functions
     UWarriorInputComponent* WarriorInput = CastChecked<UWarriorInputComponent>(PlayerInputComponent);
 
-    // Binding Move and Look using Gameplay Tags
+    // Bind native inputs (move and look) using gameplay tags
+    // This allows the ability system to recognize and respond to these inputs
     WarriorInput->BindNativeInputAction(InputConfigUDataAsset, WarriorGameplayTags::Input_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move);
     WarriorInput->BindNativeInputAction(InputConfigUDataAsset, WarriorGameplayTags::Input_Look, ETriggerEvent::Triggered, this, &ThisClass::Input_Look);
+
+    // Bind ability inputs that forward to the ability system
     WarriorInput->BindAbilityInputAction(InputConfigUDataAsset, this, &AWarriorHeroCharacter::Input_AbilityInputPressed, &AWarriorHeroCharacter::Input_AbilityInputReleased);
 }
 
 void AWarriorHeroCharacter::PossessedBy(AController* NewController)
 {
-    if (!CharacterStartUpData.IsNull())
-    {
-        if (UDataAsset_StartUpDataBase* LoadedData = CharacterStartUpData.LoadSynchronous())
-        {
+	Super::PossessedBy(NewController);
+
+	if (!CharacterStartUpData.IsNull())
+	{
+		if (UDataAsset_StartUpDataBase* LoadedData = CharacterStartUpData.LoadSynchronous())
+		{
 			LoadedData->GiveToAbilitySystemComponent(WarriorAbilitySystemComponent);
-        }
-    }
+
+			// Cast to hero-specific startup data and spawn weapons if available
+			if (UDataAsset_HeroStartUpData* HeroStartUpData = Cast<UDataAsset_HeroStartUpData>(LoadedData))
+			{
+				HeroStartUpData->GiveWeaponsToCombatComponent(this, HeroCombatComponent);
+			}
+		}
+	}
 }
 
 void AWarriorHeroCharacter::Input_Move(const FInputActionValue& Value)
@@ -136,6 +163,74 @@ void AWarriorHeroCharacter::Input_AbilityInputReleased(
     if (WarriorAbilitySystemComponent)
     {
         WarriorAbilitySystemComponent->OnAbilityInputReleased(InInputTag);
+    }
+}
+
+void AWarriorHeroCharacter::AddWeaponInputMappingContext(UInputMappingContext* WeaponMappingContext)
+{
+    // Safety check: ensure the mapping context is valid
+    if (!WeaponMappingContext)
+    {
+        return;
+    }
+
+    // Cache the player controller
+    APlayerController* PlayerController = GetController<APlayerController>();
+    if (!PlayerController)
+    {
+        // This can happen in server-only contexts or before the controller is assigned
+        return;
+    }
+
+    // Get the local player from the controller
+    ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+    if (!LocalPlayer)
+    {
+        // Local player not yet initialized (rare but possible during setup)
+        return;
+    }
+
+    // Get the enhanced input subsystem for this local player
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+    if (Subsystem)
+    {
+        // Add the weapon's input mapping context with priority 1 (higher than base priority 0)
+        // This allows weapon-specific inputs to override base inputs without removing the base context
+        Subsystem->AddMappingContext(WeaponMappingContext, 1);
+    }
+}
+
+void AWarriorHeroCharacter::RemoveWeaponInputMappingContext(UInputMappingContext* WeaponMappingContext)
+{
+    // Safety check: ensure the mapping context is valid
+    if (!WeaponMappingContext)
+    {
+        return;
+    }
+
+    // Cache the player controller
+    APlayerController* PlayerController = GetController<APlayerController>();
+    if (!PlayerController)
+    {
+        // This can happen in server-only contexts or when controller is not assigned
+        return;
+    }
+
+    // Get the local player from the controller
+    ULocalPlayer* LocalPlayer = PlayerController->GetLocalPlayer();
+    if (!LocalPlayer)
+    {
+        // Local player not yet initialized (rare but possible during setup)
+        return;
+    }
+
+    // Get the enhanced input subsystem for this local player
+    UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(LocalPlayer);
+    if (Subsystem)
+    {
+        // Remove the weapon's input mapping context
+        // This cleans up weapon-specific inputs when the weapon is unequipped
+        Subsystem->RemoveMappingContext(WeaponMappingContext);
     }
 }
 

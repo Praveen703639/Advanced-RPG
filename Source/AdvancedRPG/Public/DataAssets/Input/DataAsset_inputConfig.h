@@ -13,20 +13,20 @@ class UInputMappingContext;
 USTRUCT(BlueprintType)
 struct FWarriorInputActionConfig
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
 public:
-    
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Category = "Input"))
-    FGameplayTag InputTag;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-    UInputAction* InputAction;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (Category = "Input"))
+	FGameplayTag InputTag;
 
-    bool IsValid() const
-    {
-		return InputTag.IsValid() && InputAction != nullptr;
-    }
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UInputAction* InputAction = nullptr;
+
+	bool IsValid() const
+	{
+		return InputTag.IsValid() && InputAction;
+	}
 };
 
 /**
@@ -37,6 +37,7 @@ class ADVANCEDRPG_API UDataAsset_inputConfig : public UDataAsset
     GENERATED_BODY()
 
 public:
+    
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
     UInputMappingContext* DefaultMappingContext;
 
