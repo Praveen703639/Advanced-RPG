@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-
+#include "ScalableFloat.h"
 
 #include "WarriorStructTypes.generated.h"
 class UWarriorAnimLinkedLayer;
 class UWarriorGameplayAbility;
 class UInputMappingContext;
 class AActor;
+class UNiagaraSystem;
+class USoundBase;
 
 /**
  * FWarriorHeroAbilitySet
@@ -33,7 +35,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "InputTag")
 	FGameplayTag InputTag;
 
-	/** The ability class to grant to the character. Must be a valid ability class or the struct will fail validation. */
+    /** The ability class to grant to the character. Must be a valid ability class or the struct will fail validation. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	TSubclassOf<UWarriorGameplayAbility> AbilityToGrant;
 
@@ -46,7 +48,34 @@ public:
 	 */
 	bool IsValid() const;
 
+
 };
+
+USTRUCT(BlueprintType)
+struct FWarriorHeroSpeacialAbilitySet : public FWarriorHeroAbilitySet
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<UMaterialInterface> SoftSpecialAbilityIconMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "Player.CoolDown"))
+	FGameplayTag SpecialABilityCoolDownTag;
+};
+
+USTRUCT(BlueprintType)
+struct FWarriorHeroWeaponSpecialAbilitySet : public FWarriorHeroAbilitySet
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<UMaterialInterface> SoftWeaponSpecialAbilityIconMaterial;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "Player.CoolDown"))
+	FGameplayTag SpecialWeaponAbilityCoolDownTag;
+
+};
+
 
 /**
  * FWarriorHeroWeaponData
@@ -88,8 +117,22 @@ struct FWarriorHeroWeaponData
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta =  (TitleProperty = "InputTag"))
 	TArray<FWarriorHeroAbilitySet> DefaultHeroWeaponAbilitys;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (TitleProperty = "InputTag"))
+	TArray<FWarriorHeroWeaponSpecialAbilitySet> HeroSpecialWeaponAbilities;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FScalableFloat WeaponBaseDamage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon Visuals")
+	TObjectPtr<UNiagaraSystem> HitSparkEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon Audio")
+	TObjectPtr<USoundBase> HitSoundEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	TSoftObjectPtr<UTexture2D> SoftWeaponIconTexture;
 };
+
 
 /**
  * FWarriorHeroStartUpWeapon

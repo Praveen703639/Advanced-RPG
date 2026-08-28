@@ -1,5 +1,4 @@
-// pravin's  patashala all Rights Reserved 
-
+// pravin's patashala all Rights Reserved 
 
 #include "DataAssets/StartUpData/DataAsset_HeroStartUpData.h"
 #include "AbilitySystem/Abilities/WarriorGameplayAbility.h"
@@ -9,74 +8,103 @@
 #include "GameFramework/Character.h"
 #include "WarriorDebugHelper.h"
 
+// ------------------------------------------------------------------
+// Helper: Grants a single ability set to the ASC
+// Works for both basic and special ability sets since FWarriorHeroSpeacialAbilitySet 
+// inherits from FWarriorHeroAbilitySet
+// ------------------------------------------------------------------
+static void GrantAbilitySetToASC(UWarriorAbilitySystemComponent* InASCToGive, const FWarriorHeroAbilitySet& AbilitySet, int32 ApplyLevel)
+{
+    // Validate the ability set before attempting to grant it
+    if (!AbilitySet.IsValid())
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DataAsset_HeroStartUpData: AbilitySet invalid (InputTag=%s)"), *AbilitySet.InputTag.ToString());
+        return;
+    }
 
+    // Double-check ability class is valid
+    if (!AbilitySet.AbilityToGrant)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DataAsset_HeroStartUpData: AbilityToGrant is null for tag %s"), *AbilitySet.InputTag.ToString());
+        return;
+    }
 
+    // Get the default object (recommended for UE5.6)
+    UGameplayAbility* DefaultObj = AbilitySet.AbilityToGrant.GetDefaultObject();
+    if (!DefaultObj)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("DataAsset_HeroStartUpData: Failed to get default object for ability class for tag %s"), *AbilitySet.InputTag.ToString());
+        return;
+    }
+
+    // Build the ability spec
+    FGameplayAbilitySpec AbilitySpec(DefaultObj, ApplyLevel);
+    AbilitySpec.SourceObject = InASCToGive->GetAvatarActor();
+    AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
+
+    // Grant and log
+    FGameplayAbilitySpecHandle Handle = InASCToGive->GiveAbility(AbilitySpec);
+    UE_LOG(LogTemp, Log, TEXT("DataAsset_HeroStartUpData: Granted ability '%s' (Tag=%s) -> Handle valid: %s"),
+        *AbilitySet.AbilityToGrant->GetName(),
+        *AbilitySet.InputTag.ToString(),
+        Handle.IsValid() ? TEXT("Yes") : TEXT("No"));
+}
+
+// ------------------------------------------------------------------
+// Main: Grant all startup abilities (basic + special)
+// ------------------------------------------------------------------
 void UDataAsset_HeroStartUpData::GiveToAbilitySystemComponent(UWarriorAbilitySystemComponent* InASCToGive, int32 ApplyLevel)
 {
     // Call parent implementation for base setup
     Super::GiveToAbilitySystemComponent(InASCToGive, ApplyLevel);
 
-    // Iterate through all ability sets in this data asset
+    // --- Grant Basic Abilities ---
     for (const FWarriorHeroAbilitySet& AbilitySet : HeroStartUpAbilitySets)
     {
-        // Validate the ability set before attempting to grant it
-        // This prevents granting incomplete or invalid ability configurations
-        if (!AbilitySet.IsValid()) 
-            continue;
+        GrantAbilitySetToASC(InASCToGive, AbilitySet, ApplyLevel);
+    }
 
-        // Create a gameplay ability spec from the ability class
-        FGameplayAbilitySpec AbilitySpec(AbilitySet.AbilityToGrant);
-
-        // Set the source object to the character that owns the ability system
-        // This allows abilities to know which actor is executing them
-        AbilitySpec.SourceObject = InASCToGive->GetAvatarActor();
-
-        // Set the ability level (determines ability power/stats)
-        AbilitySpec.Level = ApplyLevel;
-
-        // Add the input tag as a dynamic source tag
-        // This allows the input system to trigger the ability correctly
-        // Using GetDynamicSpecSourceTags() is the modern UE5 API approach
-        AbilitySpec.GetDynamicSpecSourceTags().AddTag(AbilitySet.InputTag);
-
-        // Grant the ability to the ability system component
-        InASCToGive->GiveAbility(AbilitySpec);
+    // --- Grant Special Abilities ---
+    // FWarriorHeroSpeacialAbilitySet inherits from FWarriorHeroAbilitySet, 
+    // so we can pass it directly to the same grant function
+    for (const FWarriorHeroSpeacialAbilitySet& SpecialAbilitySet : HeroSpecialAbilitySets)
+    {
+        GrantAbilitySetToASC(InASCToGive, SpecialAbilitySet, ApplyLevel);
     }
 }
 
+// ------------------------------------------------------------------
+// Weapons (unchanged logic, cleaned up debug messages)
+// ------------------------------------------------------------------
 void UDataAsset_HeroStartUpData::GiveWeaponsToCombatComponent(ACharacter* InOwnerCharacter, UHeroCombatComponent* InCombatComponent, int32 ApplyLevel)
 {
-    // Ensure the character is valid
     check(InOwnerCharacter);
     check(InCombatComponent);
 
-    // Iterate through all weapon sets in this data asset
     for (const FWarriorHeroStartUpWeapon& StartUpWeapon : HeroStartUpWeapons)
     {
-        // Validate the weapon configuration before attempting to spawn
+        // Validate weapon config
         if (!StartUpWeapon.IsValid())
         {
-            const FString DebugMessage = FString::Printf(TEXT("Weapon configuration is invalid. Skipping..."));
-            Debug::Print(DebugMessage, FColor::Red);
+            UE_LOG(LogTemp, Warning, TEXT("DataAsset_HeroStartUpData: Weapon configuration invalid, skipping..."));
             continue;
         }
 
-        // Ensure WeaponClass is valid
+        // Get weapon class
         UClass* WeaponUClass = StartUpWeapon.WeaponClass.Get();
         if (!WeaponUClass)
         {
-            const FString DebugMessage = FString::Printf(TEXT("Weapon class is null for tag: %s"), *StartUpWeapon.WeaponTag.ToString());
-            Debug::Print(DebugMessage, FColor::Red);
+            UE_LOG(LogTemp, Warning, TEXT("DataAsset_HeroStartUpData: Weapon class is null for tag: %s"), *StartUpWeapon.WeaponTag.ToString());
             continue;
         }
 
-        // Prepare spawn parameters
+        // Spawn parameters
         FActorSpawnParameters SpawnParams;
         SpawnParams.Owner = InOwnerCharacter;
         SpawnParams.Instigator = InOwnerCharacter->GetInstigator();
         SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-        // Spawn the weapon actor in the world at the character's location
+        // Spawn weapon
         AWarriorHeroWeapon* SpawnedWeapon = InOwnerCharacter->GetWorld()->SpawnActor<AWarriorHeroWeapon>(
             WeaponUClass,
             InOwnerCharacter->GetActorLocation(),
@@ -84,24 +112,18 @@ void UDataAsset_HeroStartUpData::GiveWeaponsToCombatComponent(ACharacter* InOwne
             SpawnParams
         );
 
-        // Ensure the weapon was successfully spawned
         if (!SpawnedWeapon)
         {
-            const FString DebugMessage = FString::Printf(TEXT("Failed to spawn weapon for tag: %s"), *StartUpWeapon.WeaponTag.ToString());
-            Debug::Print(DebugMessage, FColor::Red);
+            UE_LOG(LogTemp, Warning, TEXT("DataAsset_HeroStartUpData: Failed to spawn weapon for tag: %s"), *StartUpWeapon.WeaponTag.ToString());
             continue;
         }
 
-        // Assign the weapon data (animations, abilities, input mappings) to the spawned weapon
+        // Apply data and register
         SpawnedWeapon->HeroWeaponData = StartUpWeapon.HeroWeaponData;
-
-        // Register the weapon with the combat component
-        // This makes it available for the character to equip via GetHeroCarriedWeaponByTag
         InCombatComponent->RegisterSpawnedWeapon(StartUpWeapon.WeaponTag, SpawnedWeapon);
 
-        const FString DebugMessage = FString::Printf(TEXT("Weapon '%s' spawned and registered with tag '%s'"), 
-            *SpawnedWeapon->GetName(), 
+        UE_LOG(LogTemp, Log, TEXT("DataAsset_HeroStartUpData: Weapon '%s' spawned and registered with tag '%s'"),
+            *SpawnedWeapon->GetName(),
             *StartUpWeapon.WeaponTag.ToString());
-        Debug::Print(DebugMessage);
     }
 }

@@ -101,4 +101,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "StartUpData", meta = (TitleProperty = "WeaponTag"))
 	TArray<FWarriorHeroStartUpWeapon> HeroStartUpWeapons;
 
+	UPROPERTY(EditDefaultsOnly, Category = "StartUpData", meta = (TitleProperty = "InputTag"))
+	TArray<FWarriorHeroSpeacialAbilitySet> HeroSpecialAbilitySets;
 };

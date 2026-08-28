@@ -12,6 +12,7 @@ class UCameraComponent;
 class UDataAsset_inputConfig;
 class UHeroCombatComponent;
 struct FInputActionValue;
+class UHeroUIComponent;
 
 /**
  * AWarriorHeroCharacter
@@ -50,6 +51,11 @@ public:
 
 	AWarriorHeroCharacter();
 
+
+	virtual  UPawnCombatComponent* GetPawnCombatComponent() const override;
+	virtual UPawnUIComponents* GetPawnUIComponents() const override;
+	virtual UHeroUIComponent* GetHeroUIComponent() const override;
+
 protected:
 
 	/** 
@@ -82,6 +88,9 @@ private:
 	/** Combat component that manages weapons, abilities, and combat-related logic. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UHeroCombatComponent* HeroCombatComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UHeroUIComponent* HeroUIComponent;
 
 	/* =======================
 	 *        Input
@@ -93,6 +102,9 @@ private:
 	 */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Input", meta = (AllowPrivateAccess = "true"))
 	UDataAsset_inputConfig* InputConfigUDataAsset;
+
+	UPROPERTY()
+	FVector2D SwitchDirection = FVector2D::ZeroVector;
 
 	/**
 	 * Handles character movement input based on input magnitude and controller rotation.
@@ -117,6 +129,13 @@ private:
 	 * Forwards the input tag to the ability system for ability deactivation.
 	 */
 	void Input_AbilityInputReleased(const FInputActionValue& Value, FGameplayTag InInputTag);
+
+	void Input_SwitchTargetTriggered(const FInputActionValue& Value);
+	void Input_SwitchTargetLockCompleted(const FInputActionValue& Value);
+	void Input_PickUpStonesStarted(const FInputActionValue& InputActionValue);
+
+
+
 
 public:
 
@@ -176,4 +195,7 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Warrior|Input")
 	void RemoveWeaponInputMappingContext(UInputMappingContext* WeaponMappingContext);
+
+
+
 };

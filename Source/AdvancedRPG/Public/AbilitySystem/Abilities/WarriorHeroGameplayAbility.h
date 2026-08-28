@@ -9,6 +9,8 @@
 class AWarriorHeroCharacter;
 class AWarriorHeroController;
 class UHeroCombatComponent;
+class UWarriorWeaponBase;
+class UWarriorBaseCharacter;
 
 /**
  * UWarriorHeroGameplayAbility
@@ -83,6 +85,30 @@ protected:
 	 */
 	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
 	UHeroCombatComponent* GetHeroCombatComponentFromActorInfo();
+
+	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
+	FGameplayEffectSpecHandle MakeHeroDamageEffectSpecHandle(TSubclassOf<UGameplayEffect> EffectClass, float InWeaponBaseDamage, FGameplayTag InCurrentAttackTypeTag, int32 InUsedComboCount);
+
+	
+
+	UFUNCTION(BlueprintCallable, Category = "Warrior|Ability")
+	bool GetAbilityRemainingCooldownByTag(FGameplayTag InCooldownTag, float& TotalCooldownTime, float& RemainingCooldownTime);
+
+	/**
+	 * Gets the cooldown duration from the ability's assigned Cooldown Gameplay Effect.
+	 * Reads the DurationMagnitude from the CDO of the CooldownGameplayEffectClass.
+	 *
+	 * @return The cooldown duration in seconds, or 0.f if no cooldown effect is set.
+	 */
+	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
+	float GetCooldownDurationFromGE() const;
+
+	
+	UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
+	UHeroUIComponent* GetHeroUIComponentFromActorInfo();
+
+	//UFUNCTION(BlueprintPure, Category = "Warrior|Ability")
+	//UWarriorWeaponBase* GetWarriorCloneHeroWeaponFromActorInfo();
 
 private:
 

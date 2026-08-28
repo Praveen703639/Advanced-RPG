@@ -13,14 +13,23 @@ public class AdvancedRPG : ModuleRules
 			"Engine", 
 			"InputCore", 
 			"EnhancedInput",
-            "GameplayTags",
-            "GameplayTasks"});
+			"GameplayTags",
+			"GameplayTasks",
+			"GameplayAbilities",
+			"Niagara",
+			"UMG",
+			"CommonInput",
+			"AnimGraphRuntime",
+			"MotionWarping",
+            "NavigationSystem",
+             "MoviePlayer"});
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
+
+        PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
+		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 

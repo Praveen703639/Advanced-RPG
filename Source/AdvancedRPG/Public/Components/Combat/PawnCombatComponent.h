@@ -1,91 +1,74 @@
-// pravin's  patashala all Rights Reserved 
-
+// Pravin's Pathshala - All Rights Reserved
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/PawnExtensionComponentBase.h"
+#include "Components/ActorComponent.h"
 #include "GameplayTagContainer.h"
-
 #include "PawnCombatComponent.generated.h"
 
 class AWarriorWeaponBase;
 
-/**
- * UPawnCombatComponent
- * 
- * Base combat component for pawn characters that manages weapon storage and equipping.
- * Allows characters to carry multiple weapons and track which one is currently equipped.
- * 
- * Design Pattern: Weapon Management System
- * - Characters can carry multiple weapons (stored in CharacterCarriedWeaponMap)
- * - Each weapon is identified by a gameplay tag (e.g., "Weapon.Axe", "Weapon.Sword")
- * - Only one weapon can be equipped at a time (tracked by CurrentEquippedWeaponTag)
- * - Derived classes can override to add hero-specific or enemy-specific behavior
- * 
- * Usage:
- * 1. Weapon registers itself when spawned (RegisterSpawnedWeapon)
- * 2. Character equips weapon by tag (updates CurrentEquippedWeaponTag)
- * 3. Get current equipped weapon with GetCharacterCurrentEquippedWeapon
- * 4. Get any carried weapon by tag with GetCharacterCarriedWeaponByTag
- * 
- * @see UHeroCombatComponent for hero-specific weapon handling
- */
-UCLASS()
-class ADVANCEDRPG_API UPawnCombatComponent : public UPawnExtensionComponentBase
+UENUM(BlueprintType)
+enum class EToggleDamageType : uint8
+{
+	CurrentEquippedWeapon	UMETA(DisplayName = "Current Equipped Weapon"),
+	LeftHand				UMETA(DisplayName = "Left Hand"),
+	RightHand				UMETA(DisplayName = "Right Hand"),
+	RightLeg				UMETA(DisplayName = "Right Leg"),
+	LeftLeg					UMETA(DisplayName = "Left Leg")
+};
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class ADVANCEDRPG_API UPawnCombatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:
+	UPawnCombatComponent();
 
-	/**
-	 * Registers a spawned weapon with the combat component.
-	 * Called when a weapon is created to add it to the character's inventory.
-	 * 
-	 * @param InWeaponTagToRegister The gameplay tag identifying this weapon (e.g., "Weapon.Axe")
-	 * @param InWeaponToRegister The weapon actor to register
-	 * @param bRegisterAsEquippedWeapon If true, this weapon becomes the currently equipped weapon
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Warrior|Combat")
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	APawn* GetOwningPawn() const { return Cast<APawn>(GetOwner()); }
+
+	template<typename T>
+	T* GetOwningPawn() const { return Cast<T>(GetOwner()); }
+
+	// KEPT EXACTLY AS YOUR ORIGINAL — Blueprint node will NOT break
+	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void RegisterSpawnedWeapon(FGameplayTag InWeaponTagToRegister, AWarriorWeaponBase* InWeaponToRegister, bool bRegisterAsEquippedWeapon = false);
 
-	/**
-	 * Gets a carried weapon by its gameplay tag.
-	 * Searches the weapon map for a weapon matching the provided tag.
-	 * 
-	 * @param InWeaponTagToGet The gameplay tag to search for
-	 * @return The weapon if found, nullptr otherwise
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Warrior|Combat")
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	const TMap<FGameplayTag, AWarriorWeaponBase*>& GetCharacterCarriedWeaponMap() const { return CharacterCarriedWeaponMap; }
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	FGameplayTag GetCurrentEquippedWeaponTag() const { return CurrentEquippedWeaponTag; }
+
+	UFUNCTION(BlueprintCallable)
 	AWarriorWeaponBase* GetCharacterCarriedWeaponByTag(FGameplayTag InWeaponTagToGet) const;
 
-	/**
-	 * Gets the currently equipped weapon.
-	 * Looks up the weapon using CurrentEquippedWeaponTag.
-	 * 
-	 * @return The currently equipped weapon, or nullptr if none is equipped
-	 */
-	UFUNCTION(BlueprintCallable, Category = "Warrior|Combat")
+	UFUNCTION(BlueprintCallable)
 	AWarriorWeaponBase* GetCharacterCurrentEquippedWeapon() const;
 
-protected:
+	UFUNCTION(BlueprintCallable)
+	void TogggleWeaponCollision(bool bShouldEnable, EToggleDamageType ToggleDamageType);
 
-	/** 
-	 * The gameplay tag of the currently equipped weapon.
-	 * Used to quickly identify which weapon is active without searching the map.
-	 */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Warrior|Combat")
+	virtual void OnHitTargetActor(AActor* HitActor);
+	virtual void OnWeaponPulledFromTargetActor(AActor* InteractedActor);
+
+	// BlueprintReadWrite because you set it in BP
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Equipment")
 	FGameplayTag CurrentEquippedWeaponTag;
 
+protected:
+	// NEW: virtual hook so HeroCombatComponent can rebind delegates WITHOUT touching RegisterSpawnedWeapon
+	virtual void PostRegisterWeapon(AWarriorWeaponBase* InWeaponToRegister);
 
-private:
+	virtual void ToggleCurrentEquippedWeaponCollision(bool bShouldEnable);
+	virtual void ToggleBodyCollisionBoxCollision(bool bShouldEnable, EToggleDamageType ToggleDamageType);
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	/** 
-	 * Map of all weapons carried by this character.
-	 * Key: FGameplayTag (weapon identifier like "Weapon.Axe")
-	 * Value: AWarriorWeaponBase* (the weapon actor)
-	 * 
-	 * Allows fast O(1) lookup of weapons by tag instead of searching arrays.
-	 */
+	UPROPERTY()
 	TMap<FGameplayTag, AWarriorWeaponBase*> CharacterCarriedWeaponMap;
-};
 
+	UPROPERTY()
+	TArray<AActor*> OverlappedActors;
+};

@@ -7,7 +7,12 @@
 #include "WarriorWeaponBase.generated.h"
 
 class UStaticMeshComponent;
-class UBoxComponent;
+class UCapsuleComponent;
+
+
+DECLARE_DELEGATE_OneParam(FOnTargetInteractedDelegate,AActor* /*HitActor*/)
+
+
 
 UCLASS()
 class ADVANCEDRPG_API AWarriorWeaponBase : public AActor
@@ -17,13 +22,28 @@ class ADVANCEDRPG_API AWarriorWeaponBase : public AActor
 public:
     AWarriorWeaponBase();
 
+    FOnTargetInteractedDelegate OnWeaponHitTarget;
+	FOnTargetInteractedDelegate OnWeaponPulledFromTarget;
+
+
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+
+    // Make the mesh editable in Blueprints and instances so designers can adjust rotation/transform
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon", meta=(AllowPrivateAccess="true"))
     UStaticMeshComponent* WeaponMesh;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
-    UBoxComponent* WeaponCollisionBox; 
+    UCapsuleComponent* WeaponCollisionCapsule;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
+    USceneComponent* Root;
+
+    UFUNCTION()
+    virtual void OnCollisionBoxBeginOverLap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+    
+    UFUNCTION()
+    
+    virtual void OnCollisionBoxEndOverLap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 public:
-    FORCEINLINE UBoxComponent* GetWeaponCollisionBox() const { return WeaponCollisionBox; }
+    FORCEINLINE UCapsuleComponent* GetWeaponCollisionCapsule() const { return WeaponCollisionCapsule; }
 };
