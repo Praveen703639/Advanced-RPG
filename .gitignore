@@ -1,13 +1,27 @@
-# Unreal Engine Folders
+﻿# Ignore the test MCP plugin
+Plugins/UnrealMCP/
+# Binaries & intermediates
 Binaries/
-Build/
 DerivedDataCache/
 Intermediate/
 Saved/
-
-# Visual Studio Folders and Files
-.vs/
+Build/
 *.sln
 *.suo
+*.xcodeproj
+*.xcworkspace
+# Compiled files
+*.pdb
+*.exe
+*.dll
+*.dylib
+*.so
+# IDE / local settings
 *.user
 *.userprefs
+.vs/
+.vscode/
+.idea/
+# Temp files
+*.tmp
+*.log
