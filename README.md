@@ -38,3 +38,16 @@ A combat-focused Action RPG built in **Unreal Engine 5** using **C++** and the *
 | Animation Blueprints | Locomotion, combat states |
 
 ## Project Structure
+
+Source/AdvancedRPG/
+├── AbilitySystem/          # GAS abilities, tasks, attribute sets
+├── AI/                     # Behavior trees, AI controllers
+├── AnimInstances/          # Animation Blueprint logic in C++
+├── Characters/             # Hero, enemies, boss, ice clone
+├── Components/Combat/      # Combat logic (light/heavy attacks)
+├── Components/UI/          # UI components for hero and enemies
+├── Controllers/            # Player & AI controllers
+├── DataAssets/             # Startup data for ability grants
+├── Items/                  # Weapons, projectiles, pickups
+├── Widgets/                # UI widgets and options menus
+└── SaveGame/               # Save game subsystem
