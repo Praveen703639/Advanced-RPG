@@ -54,3 +54,5 @@ Source/AdvancedRPG/
 ├── Items/                  # Weapons, projectiles, pickups
 ├── Widgets/                # UI widgets and options menus
 └── SaveGame/               # Save game subsystem
+
+<img width="300" height="150" alt="Image" src="https://github.com/user-attachments/assets/d5945d40-a7c8-4b67-a2c6-0a6f24ad9731" />
