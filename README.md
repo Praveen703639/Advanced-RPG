@@ -1,4 +1,4 @@
-@'
+
 # Advanced RPG
 
 A combat-focused Action RPG built in **Unreal Engine 5** using **C++** and the **Gameplay Ability System (GAS)**.
@@ -15,7 +15,7 @@ A combat-focused Action RPG built in **Unreal Engine 5** using **C++** and the *
   - Rage mode
   - Pluck of Many (Wukong-style clones)
   - All-Kill Wolves / Paragon Shinbi-style wolf summons
-  - Circling Wolves projectile
+  - Circling Wolves 
 
 ### Enemy AI
 - **Melee Grunt** — approaches and attacks when in range
