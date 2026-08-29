@@ -1,6 +1,9 @@
 
 # Advanced RPG
 
+
+<video src="/public/PluckOfMany.mp4" width="100%" controls></video>
+
 A combat-focused Action RPG built in **Unreal Engine 5** using **C++** and the **Gameplay Ability System (GAS)**.
 
 ## Features
