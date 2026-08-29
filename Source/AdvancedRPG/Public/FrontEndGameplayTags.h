@@ -22,6 +22,7 @@ namespace FGameplayTags
 	ADVANCEDRPG_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(FrontEnd_Widget_ConfirmScreen);
 
 
+
 	
 
 

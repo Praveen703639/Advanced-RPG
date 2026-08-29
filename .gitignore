@@ -25,3 +25,42 @@ Build/
 # Temp files
 *.tmp
 *.log
+# Marketplace asset packs (not custom work)
+Content/ParagonAurora/
+Content/ParagonGrux/
+Content/ParagonIggyScorch/
+Content/ParagonKwang/
+Content/ParagonProps/
+Content/ParagonShinbi/
+Content/ParagonSparrow/
+Content/CastleAssets/
+Content/CityofBrass_Enemies/
+Content/CompleteCharacters/
+Content/DemonLord2/
+Content/EngineSky/
+Content/FXVarietyPack/
+Content/Free_Magic/
+Content/Japanese_Shrine_*/
+Content/KiteDemo/
+Content/KV_Foliage/
+Content/Lighting/
+Content/MSPresets/
+Content/MWLandscapeAutoMaterial/
+Content/PackOfTreeEnts/
+Content/Pack_Simple_Particle_Burst/
+Content/SampleMap/
+Content/SciFi_ToiletMech/
+Content/Scifi_desert_city/
+Content/Splash/
+Content/Stylized_Tree_Pack/
+Content/SwordTrailVFX/
+Content/Basic_VFX/
+Content/ArrowTrail/
+Content/EditorBlueprintResources/
+Content/Generic/
+Content/mid/
+Content/ExoGame_Wolf_Idle.fbx
+
+# Temp files
+fix_map_real.py
+next/
