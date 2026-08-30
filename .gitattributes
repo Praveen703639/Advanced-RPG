@@ -6,11 +6,11 @@
 *.uplugin text eol=lf
 *.Build.cs text eol=lf
 *.Target.cs text eol=lf
-*.uasset binary
-*.umap binary
-*.fbx binary
-*.png binary
-*.jpg binary
+*.uasset filter=lfs diff=lfs merge=lfs -text
+*.umap filter=lfs diff=lfs merge=lfs -text
+*.fbx filter=lfs diff=lfs merge=lfs -text
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
 *.jpeg binary
 *.wav binary
 *.mp3 binary
