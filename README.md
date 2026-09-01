@@ -41,7 +41,7 @@ A combat-focused Action RPG built in **Unreal Engine 5** using **C++** and the *
 | Animation Blueprints | Locomotion, combat states |
 
 ## Project Structure
-
+```
 Source/AdvancedRPG/
 ├── AbilitySystem/          # GAS abilities, tasks, attribute sets
 ├── AI/                     # Behavior trees, AI controllers
@@ -54,5 +54,5 @@ Source/AdvancedRPG/
 ├── Items/                  # Weapons, projectiles, pickups
 ├── Widgets/                # UI widgets and options menus
 └── SaveGame/               # Save game subsystem
-
-<img width="300" height="150" alt="Image" src="https://github.com/user-attachments/assets/d5945d40-a7c8-4b67-a2c6-0a6f24ad9731" />
+```
+<img  height="150" alt="Image" src="https://github.com/user-attachments/assets/d5945d40-a7c8-4b67-a2c6-0a6f24ad9731" />
