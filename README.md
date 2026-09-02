@@ -9,7 +9,7 @@ A combat-focused Action RPG built in **Unreal Engine 5** using **C++** and the *
 ## Features
 
 ### Hero Combat System
-- **Three Weapon Types** — each with unique light attacks, heavy attacks, and aerial finishers
+- **Three Weapon Types** — each with unique light attacks, heavy attacks, and Special Light And Heavy Attacks
 - **Combo System** — chain light attacks into a heavy jump-to-finisher
 - **Block & Parry** — active block with timing-based parry into counter-attack
 - **Target Lock** — soft-lock camera on enemies during combat
