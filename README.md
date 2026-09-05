@@ -1,4 +1,8 @@
+## 🎮 Gameplay
 
+[![Watch Gameplay](https://img.youtube.com/vi/sfk2eV6xraI/maxresdefault.jpg)](https://www.youtube.com/watch?v=sfk2eV6xraI)
+
+> 🎥Full Gameplay Demo here.
 # Advanced RPG
 
 
