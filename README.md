@@ -2,7 +2,7 @@
 
 [![Watch Gameplay](https://img.youtube.com/vi/sfk2eV6xraI/maxresdefault.jpg)](https://www.youtube.com/watch?v=sfk2eV6xraI)
 
-> 🎥Full Gameplay Demo here.
+> 🎥🎥 Click the thumbnail above to watch the gameplay video on YouTube.
 # Advanced RPG
 
 
