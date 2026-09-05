@@ -1,14 +1,16 @@
-## 🎮 Gameplay
 
-[![Watch Gameplay](https://img.youtube.com/vi/sfk2eV6xraI/maxresdefault.jpg)](https://www.youtube.com/watch?v=sfk2eV6xraI)
-
-> 🎥🎥 Click the thumbnail above to watch the gameplay video on YouTube.
 # Advanced RPG
 
 
 <video src="/public/PluckOfMany.mp4" width="100%" controls></video>
 
 A combat-focused Action RPG built in **Unreal Engine 5** using **C++** and the **Gameplay Ability System (GAS)**.
+
+## 🎮 Gameplay
+
+[![Watch Gameplay](https://img.youtube.com/vi/sfk2eV6xraI/maxresdefault.jpg)](https://www.youtube.com/watch?v=sfk2eV6xraI)
+
+> 🎥🎥 Click the thumbnail above to watch the gameplay video on YouTube.
 
 ## Features
 
