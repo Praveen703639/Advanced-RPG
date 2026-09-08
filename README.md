@@ -41,35 +41,58 @@ These abilities are powered by **custom GAS Ability Tasks** written in C++. The 
 </tr>
 </table>
 
-Basic Character with Three Weapons In World :
-<img width="1482" height="826" alt="Image" src="https://github.com/user-attachments/assets/a589f349-1ffd-4c2d-90ff-98933f3dfde4" />
+---
 
-Ranged Enemies Spawning Homing Projectiles :
-<img width="1480" height="842" alt="Image" src="https://github.com/user-attachments/assets/68afb58d-128d-4a4c-bdb2-5568181b985c" />
+## 🤖 Combat & Boss Encounter
 
-Boss Attack With Hands :
-<img width="1494" height="844" alt="Image" src="https://github.com/user-attachments/assets/6b61dfa7-ead7-4cb4-ad9c-6096fe945631" />
+A small combat encounter combining player weapons, ranged enemy attacks, boss melee attacks and enemy summoning.
 
-Boss Summoning Ranged Enemies :
-<img width="1492" height="838" alt="Image" src="https://github.com/user-attachments/assets/a831e53f-3a83-446e-8194-26b6b0c35519" />
+<table>
+<tr>
+<td width="50%" align="center">
+<strong>Player & Weapons</strong><br><br>
+<img src="https://github.com/user-attachments/assets/a589f349-1ffd-4c2d-90ff-98933f3dfde4" width="100%" alt="Player character with three weapons">
+<br><br>
+<sub>Third-person character with three weapons available in the world.</sub>
+</td>
+<td width="50%" align="center">
+<strong>Ranged Enemy — Homing Projectiles</strong><br><br>
+<img src="https://github.com/user-attachments/assets/68afb58d-128d-4a4c-bdb2-5568181b985c" width="100%" alt="Ranged enemies firing homing projectiles">
+<br><br>
+<sub>Ranged enemies launch target-driven homing projectiles.</sub>
+</td>
+</tr>
+<tr>
+<td width="50%" align="center">
+<strong>Boss — Melee Attack</strong><br><br>
+<img src="https://github.com/user-attachments/assets/6b61dfa7-ead7-4cb4-ad9c-6096fe945631" width="100%" alt="Boss hand attack">
+<br><br>
+<sub>Boss uses a close-range hand attack as part of the encounter.</sub>
+</td>
+<td width="50%" align="center">
+<strong>Boss — Enemy Summon</strong><br><br>
+<img src="https://github.com/user-attachments/assets/a831e53f-3a83-446e-8194-26b6b0c35519" width="100%" alt="Boss summoning ranged enemies">
+<br><br>
+<sub>Boss summons ranged enemies to increase encounter pressure.</sub>
+</td>
+</tr>
+</table>
 
-### What is happening behind the scenes?
+### Encounter Flow
 
 ```text
-Input / Gameplay Event
-        ↓
-Gameplay Ability
-        ↓
-Custom GAS Ability Task
-        ↓
-Spawn / Move / Target / Execute
-        ↓
-Gameplay Effects + Damage
-        ↓
-Cleanup / Ability Completion
+Player Combat
+     ↓
+Ranged Enemies
+     ↓
+Homing Projectile Pressure
+     ↓
+Boss Encounter
+     ↓
+Boss Melee Attack + Summoning
+     ↓
+Player Clears Summoned Enemies
 ```
-
-The important part is that these are not one-off character functions. The complex asynchronous gameplay operations are encapsulated inside reusable **`UAbilityTask`** implementations.
 
 ---
 
@@ -193,7 +216,7 @@ The project uses Unreal's AI framework for combat decision making:
 - Melee and ranged enemy behaviors
 - Boss-specific combat abilities and summon patterns
 
-Boss abilities include projectile patterns, aerial/ground summons, melee attacks and multi-entity encounters.
+The boss encounter combines melee attacks, ranged enemy summons and projectile pressure to create a multi-entity combat scenario.
 
 ---
 
