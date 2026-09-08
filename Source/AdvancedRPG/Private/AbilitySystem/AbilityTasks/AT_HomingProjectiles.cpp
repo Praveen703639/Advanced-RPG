@@ -1,18 +1,11 @@
-// pravin's patashala all Rights Reserved
-
 #include "AbilitySystem/AbilityTasks/AT_HomingProjectiles.h"
 #include "Items/Projectiles/WarriorProjectileBase.h"
 #include "NiagaraComponent.h"
 #include "NiagaraSystem.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "GameFramework/Pawn.h"
-#include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
 #include "AbilitySystemComponent.h"
-
-// Target characters
-#include "Characters/WarriorHeroCharacter.h"
-#include "Characters/WarriorBowCharacter.h"
+#include "Components/SceneComponent.h"
 
 UAT_HomingProjectiles::UAT_HomingProjectiles()
     : NumProjectiles(3)
@@ -27,6 +20,7 @@ UAT_HomingProjectiles::UAT_HomingProjectiles()
 
 UAT_HomingProjectiles* UAT_HomingProjectiles::HomingProjectiles(
     UGameplayAbility* OwningAbility,
+    AActor* InTargetActor,
     TSubclassOf<AWarriorProjectileBase> InProjectileClass,
     FGameplayEffectSpecHandle InDamageEffectSpecHandle,
     UNiagaraSystem* InNiagaraEffect,
@@ -39,16 +33,17 @@ UAT_HomingProjectiles* UAT_HomingProjectiles::HomingProjectiles(
     float InStaggerDelay)
 {
     UAT_HomingProjectiles* Task = NewAbilityTask<UAT_HomingProjectiles>(OwningAbility);
+    Task->TargetActor = InTargetActor;
     Task->ProjectileClass = InProjectileClass;
     Task->DamageEffectSpecHandle = InDamageEffectSpecHandle;
     Task->NiagaraEffect = InNiagaraEffect;
     Task->SpawnTransform = InSpawnTransform;
     Task->NumProjectiles = FMath::Clamp(InNumProjectiles, 1, 12);
-    Task->Speed = InSpeed;
-    Task->HomingAcceleration = InHomingAcceleration;
+    Task->Speed = FMath::Max(0.0f, InSpeed);
+    Task->HomingAcceleration = FMath::Max(0.0f, InHomingAcceleration);
     Task->ArcHeight = InArcHeight;
-    Task->ProjectileLifeSpan = InProjectileLifeSpan;
-    Task->StaggerDelay = InStaggerDelay;
+    Task->ProjectileLifeSpan = FMath::Max(0.1f, InProjectileLifeSpan);
+    Task->StaggerDelay = FMath::Max(0.0f, InStaggerDelay);
     return Task;
 }
 
@@ -60,16 +55,33 @@ void UAT_HomingProjectiles::Activate()
 
 void UAT_HomingProjectiles::StartHomingSpawn()
 {
-    if (!Ability || !Ability->GetCurrentActorInfo() || !Ability->GetCurrentActorInfo()->AvatarActor.IsValid())
+    if (!Ability)
     {
-        UE_LOG(LogTemp, Error, TEXT("HomingProjectiles: Invalid Ability or Avatar!"));
+        UE_LOG(LogTemp, Error, TEXT("HomingProjectiles: Invalid owning ability."));
+        EndTask();
+        return;
+    }
+
+    const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
+    AActor* Avatar = ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr;
+
+    if (!Avatar || !GetWorld())
+    {
+        UE_LOG(LogTemp, Error, TEXT("HomingProjectiles: Invalid avatar or world."));
+        EndTask();
+        return;
+    }
+
+    if (!TargetActor || !IsValid(TargetActor))
+    {
+        UE_LOG(LogTemp, Error, TEXT("HomingProjectiles: Invalid target actor."));
         EndTask();
         return;
     }
 
     if (!ProjectileClass)
     {
-        UE_LOG(LogTemp, Error, TEXT("HomingProjectiles: ProjectileClass is NULL!"));
+        UE_LOG(LogTemp, Error, TEXT("HomingProjectiles: Invalid projectile class."));
         EndTask();
         return;
     }
@@ -90,11 +102,8 @@ void UAT_HomingProjectiles::StartHomingSpawn()
         SpawnProjectileBatch();
     }
 
-    float EndDelay = ProjectileLifeSpan + 1.0f;
-    if (StaggerDelay > 0.0f)
-    {
-        EndDelay += (NumProjectiles * StaggerDelay);
-    }
+    const float EndDelay = ProjectileLifeSpan + 1.0f +
+        (StaggerDelay > 0.0f ? NumProjectiles * StaggerDelay : 0.0f);
 
     GetWorld()->GetTimerManager().SetTimer(
         CompleteTimer,
@@ -104,65 +113,47 @@ void UAT_HomingProjectiles::StartHomingSpawn()
         false);
 }
 
-USceneComponent* UAT_HomingProjectiles::FindTargetMesh() const
+USceneComponent* UAT_HomingProjectiles::FindTargetComponent() const
 {
-    AActor* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-    if (!PlayerPawn)
-    {
-        UE_LOG(LogTemp, Error, TEXT("HomingProjectiles: GetPlayerPawn returned NULL! No target found."));
-        return nullptr;
-    }
-
-    if (AWarriorHeroCharacter* Hero = Cast<AWarriorHeroCharacter>(PlayerPawn))
-    {
-        return Hero->GetRootComponent(); // Capsule = mid-body height
-    }
-
-    if (AWarriorBowCharacter* BowHero = Cast<AWarriorBowCharacter>(PlayerPawn))
-    {
-        return BowHero->GetRootComponent(); // Capsule = mid-body height
-    }
-
-    if (ACharacter* Char = Cast<ACharacter>(PlayerPawn))
-    {
-        return Char->GetRootComponent(); // <-- FIX: No red squiggle, same result
-    }
-
-    return PlayerPawn->GetRootComponent();
+    return IsValid(TargetActor) ? TargetActor->GetRootComponent() : nullptr;
 }
 
 void UAT_HomingProjectiles::SpawnProjectileBatch()
 {
-    AActor* Avatar = Ability->GetCurrentActorInfo()->AvatarActor.Get();
-    if (!Avatar) return;
-
-    USceneComponent* TargetComp = FindTargetMesh();
-    if (!TargetComp)
+    if (!Ability || !GetWorld())
     {
-        UE_LOG(LogTemp, Error, TEXT("HomingProjectiles: No target found! Aborting batch."));
         EndTask();
         return;
     }
 
-    FVector Center;
-    if (!SpawnTransform.Equals(FTransform::Identity))
+    const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
+    AActor* Avatar = ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr;
+    USceneComponent* TargetComp = FindTargetComponent();
+
+    if (!Avatar || !TargetComp)
     {
-        Center = SpawnTransform.GetLocation();
-    }
-    else
-    {
-        Center = Avatar->GetActorLocation();
+        UE_LOG(LogTemp, Error, TEXT("HomingProjectiles: Missing avatar or target component."));
+        EndTask();
+        return;
     }
 
-    // FIX: Aim at the target, NOT wherever the enemy is facing!
-    FVector TargetLocation = TargetComp->GetComponentLocation();
-    FVector Forward = (TargetLocation - Center).GetSafeNormal();
+    const FVector Center = SpawnTransform.Equals(FTransform::Identity)
+        ? Avatar->GetActorLocation()
+        : SpawnTransform.GetLocation();
 
-    for (int32 i = 0; i < NumProjectiles; i++)
+    const FVector Forward = (TargetComp->GetComponentLocation() - Center).GetSafeNormal();
+
+    if (Forward.IsNearlyZero())
     {
-        // Spawn slightly forward and up so it doesn't clip the enemy's own collision
-        FVector SpawnLoc = Center + (Forward * 120.0f) + FVector(0.0f, 0.0f, 80.0f);
-        FTransform FinalSpawnTransform(Forward.Rotation(), SpawnLoc);
+        UE_LOG(LogTemp, Warning, TEXT("HomingProjectiles: Target is at spawn location."));
+        EndTask();
+        return;
+    }
+
+    for (int32 i = 0; i < NumProjectiles; ++i)
+    {
+        const FVector SpawnLoc = Center + (Forward * 120.0f) + FVector(0.0f, 0.0f, 80.0f);
+        const FTransform FinalSpawnTransform(Forward.Rotation(), SpawnLoc);
 
         AWarriorProjectileBase* Proj = GetWorld()->SpawnActorDeferred<AWarriorProjectileBase>(
             ProjectileClass,
@@ -175,12 +166,7 @@ void UAT_HomingProjectiles::SpawnProjectileBatch()
         {
             SetupProjectile(Proj, Forward);
             Proj->FinishSpawning(FinalSpawnTransform);
-
-            if (TargetComp)
-            {
-                Proj->SetHomingTarget(TargetComp, HomingAcceleration);
-            }
-
+            Proj->SetHomingTarget(TargetComp, HomingAcceleration);
             SpawnedProjectiles.Add(Proj);
         }
     }
@@ -188,36 +174,34 @@ void UAT_HomingProjectiles::SpawnProjectileBatch()
 
 void UAT_HomingProjectiles::SpawnNextProjectile()
 {
-    AActor* Avatar = Ability->GetCurrentActorInfo()->AvatarActor.Get();
-    if (!Avatar || CurrentSpawnIndex >= NumProjectiles)
+    if (!Ability || !GetWorld())
+    {
+        return;
+    }
+
+    const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
+    AActor* Avatar = ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr;
+    USceneComponent* TargetComp = FindTargetComponent();
+
+    if (!Avatar || !TargetComp || CurrentSpawnIndex >= NumProjectiles)
     {
         GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
         return;
     }
 
-    USceneComponent* TargetComp = FindTargetMesh();
-    if (!TargetComp)
+    const FVector Center = SpawnTransform.Equals(FTransform::Identity)
+        ? Avatar->GetActorLocation()
+        : SpawnTransform.GetLocation();
+
+    const FVector Forward = (TargetComp->GetComponentLocation() - Center).GetSafeNormal();
+    if (Forward.IsNearlyZero())
     {
         GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
         return;
     }
 
-    FVector Center;
-    if (!SpawnTransform.Equals(FTransform::Identity))
-    {
-        Center = SpawnTransform.GetLocation();
-    }
-    else
-    {
-        Center = Avatar->GetActorLocation();
-    }
-
-    // FIX: Aim at target location
-    FVector TargetLocation = TargetComp->GetComponentLocation();
-    FVector Forward = (TargetLocation - Center).GetSafeNormal();
-
-    FVector SpawnLoc = Center + (Forward * 120.0f) + FVector(0.0f, 0.0f, 80.0f);
-    FTransform FinalSpawnTransform(Forward.Rotation(), SpawnLoc);
+    const FVector SpawnLoc = Center + (Forward * 120.0f) + FVector(0.0f, 0.0f, 80.0f);
+    const FTransform FinalSpawnTransform(Forward.Rotation(), SpawnLoc);
 
     AWarriorProjectileBase* Proj = GetWorld()->SpawnActorDeferred<AWarriorProjectileBase>(
         ProjectileClass,
@@ -230,16 +214,11 @@ void UAT_HomingProjectiles::SpawnNextProjectile()
     {
         SetupProjectile(Proj, Forward);
         Proj->FinishSpawning(FinalSpawnTransform);
-
-        if (TargetComp)
-        {
-            Proj->SetHomingTarget(TargetComp, HomingAcceleration);
-        }
-
+        Proj->SetHomingTarget(TargetComp, HomingAcceleration);
         SpawnedProjectiles.Add(Proj);
     }
 
-    CurrentSpawnIndex++;
+    ++CurrentSpawnIndex;
     if (CurrentSpawnIndex >= NumProjectiles)
     {
         GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
@@ -250,13 +229,11 @@ void UAT_HomingProjectiles::SetupProjectile(AWarriorProjectileBase* Proj, const 
 {
     if (!Proj) return;
 
-    // Curved stunning path: forward + arc height
-    FVector InitialVelocity = (BaseDirection * Speed) + FVector(0.0f, 0.0f, ArcHeight);
+    const FVector InitialVelocity = (BaseDirection * Speed) + FVector(0.0f, 0.0f, ArcHeight);
 
     Proj->SetProjectileVelocity(InitialVelocity);
     Proj->SetProjectileSpeed(Speed, Speed * 1.5f);
     Proj->SetProjectileGravityScale(0.0f);
-
     Proj->SetDamageEffectSpecHandle(DamageEffectSpecHandle);
 
     if (NiagaraEffect)
@@ -267,14 +244,15 @@ void UAT_HomingProjectiles::SetupProjectile(AWarriorProjectileBase* Proj, const 
 
     Proj->SetActorRotation(BaseDirection.Rotation());
     Proj->SetLifeSpan(ProjectileLifeSpan);
-
-    UE_LOG(LogTemp, Log, TEXT("HomingProjectiles: SetupProjectile complete. Vel=%s"), *InitialVelocity.ToString());
 }
 
-void UAT_HomingProjectiles::CleanupAndEnd()
+void UAT_HomingProjectiles::CleanupAndEnd(bool bBroadcastComplete)
 {
-    GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
-    GetWorld()->GetTimerManager().ClearTimer(CompleteTimer);
+    if (GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
+        GetWorld()->GetTimerManager().ClearTimer(CompleteTimer);
+    }
 
     for (AWarriorProjectileBase* Proj : SpawnedProjectiles)
     {
@@ -285,13 +263,17 @@ void UAT_HomingProjectiles::CleanupAndEnd()
     }
     SpawnedProjectiles.Empty();
 
-    OnHomingComplete.Broadcast();
+    if (bBroadcastComplete)
+    {
+        OnHomingComplete.Broadcast();
+    }
+
     EndTask();
 }
 
 void UAT_HomingProjectiles::ExternalCancel()
 {
-    CleanupAndEnd();
+    CleanupAndEnd(false);
     Super::ExternalCancel();
 }
 
@@ -302,5 +284,7 @@ void UAT_HomingProjectiles::OnDestroy(bool AbilityEnded)
         GetWorld()->GetTimerManager().ClearTimer(SpawnTimer);
         GetWorld()->GetTimerManager().ClearTimer(CompleteTimer);
     }
+
+    SpawnedProjectiles.Empty();
     Super::OnDestroy(AbilityEnded);
 }
