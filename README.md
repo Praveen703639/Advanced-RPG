@@ -21,6 +21,9 @@ PLUCK-OF-MANY
 ALL-HIT
 <img width="1474" height="828" alt="Image" src="https://github.com/user-attachments/assets/1b447033-16f4-4689-936e-09de068f49a8" />
 
+CIRCLING-WOLVES
+<img width="1492" height="826" alt="Image" src="https://github.com/user-attachments/assets/51e3e994-105e-42c1-af06-9422a1dba44c" />
+
 ## 🧠 Engineering Highlights
 
 | System | Implementation |
