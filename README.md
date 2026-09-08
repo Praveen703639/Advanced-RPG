@@ -44,6 +44,9 @@ These abilities are powered by **custom GAS Ability Tasks** written in C++. The 
 Basic Character with Three Weapons In World :
 <img width="1482" height="826" alt="Image" src="https://github.com/user-attachments/assets/a589f349-1ffd-4c2d-90ff-98933f3dfde4" />
 
+Ranged Enemies Spawning Homing Projectiles :
+<img width="1480" height="842" alt="Image" src="https://github.com/user-attachments/assets/68afb58d-128d-4a4c-bdb2-5568181b985c" />
+
 ### What is happening behind the scenes?
 
 ```text
