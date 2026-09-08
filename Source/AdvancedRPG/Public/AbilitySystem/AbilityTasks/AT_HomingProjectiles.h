@@ -5,6 +5,7 @@
 #include "GameplayEffectTypes.h"
 #include "AT_HomingProjectiles.generated.h"
 
+class AActor;
 class AWarriorProjectileBase;
 class UNiagaraSystem;
 
@@ -24,6 +25,7 @@ public:
     UFUNCTION(BlueprintCallable, meta = (HidePin = "OwningAbility", DefaultToSelf = "OwningAbility", BlueprintInternalUseOnly = "true"), Category = "Ability|Tasks")
     static UAT_HomingProjectiles* HomingProjectiles(
         UGameplayAbility* OwningAbility,
+        AActor* InTargetActor,
         TSubclassOf<AWarriorProjectileBase> InProjectileClass,
         FGameplayEffectSpecHandle InDamageEffectSpecHandle,
         UNiagaraSystem* InNiagaraEffect,
@@ -47,7 +49,10 @@ protected:
     TArray<AWarriorProjectileBase*> SpawnedProjectiles;
 
     UPROPERTY()
-    UNiagaraSystem* NiagaraEffect;
+    TObjectPtr<AActor> TargetActor;
+
+    UPROPERTY()
+    TObjectPtr<UNiagaraSystem> NiagaraEffect;
 
     FGameplayEffectSpecHandle DamageEffectSpecHandle;
     FTransform SpawnTransform;
@@ -67,7 +72,7 @@ protected:
     void SpawnProjectileBatch();
     void SpawnNextProjectile();
     void SetupProjectile(AWarriorProjectileBase* Proj, const FVector& BaseDirection);
-    void CleanupAndEnd();
+    void CleanupAndEnd(bool bBroadcastComplete);
 
-    USceneComponent* FindTargetMesh() const;
+    USceneComponent* FindTargetComponent() const;
 };
