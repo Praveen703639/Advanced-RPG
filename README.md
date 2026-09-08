@@ -14,7 +14,12 @@ A combat prototype focused on **ability-driven gameplay, responsive combat, enem
 
 ---
 showcase:
+
+PLUCK-OF-MANY
 <img width="1482" height="846" alt="Image" src="https://github.com/user-attachments/assets/ee7db30c-e9c8-47a2-b073-cfac9fa91455" />
+
+ALL-HIT
+<img width="1474" height="828" alt="Image" src="https://github.com/user-attachments/assets/1b447033-16f4-4689-936e-09de068f49a8" />
 
 ## 🧠 Engineering Highlights
 
