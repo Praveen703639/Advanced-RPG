@@ -1,8 +1,3 @@
-// pravin's  patashala all Rights Reserved 
-
-
-
-
 #include "AbilitySystem/AbilityTasks/AT_WallProjectiles.h"
 #include "Items/Projectiles/WarriorProjectileBase.h"
 #include "NiagaraComponent.h"
@@ -40,10 +35,10 @@ UAT_WallProjectiles* UAT_WallProjectiles::WallProjectiles(
     Task->NiagaraEffect = InNiagaraEffect;
     Task->SpawnTransform = InSpawnTransform;
     Task->NumProjectiles = FMath::Clamp(InNumProjectiles, 1, 24);
-    Task->ProjectileSpacing = InProjectileSpacing;
-    Task->Speed = InSpeed;
+    Task->ProjectileSpacing = FMath::Max(0.0f, InProjectileSpacing);
+    Task->Speed = FMath::Max(0.0f, InSpeed);
     Task->SpawnDistance = InSpawnDistance;
-    Task->ProjectileLifeSpan = InProjectileLifeSpan;
+    Task->ProjectileLifeSpan = FMath::Max(0.1f, InProjectileLifeSpan);
     Task->ZOffset = InZOffset;
     return Task;
 }
@@ -56,17 +51,26 @@ void UAT_WallProjectiles::Activate()
 
 void UAT_WallProjectiles::SpawnWall()
 {
-    AActor* Avatar = Ability->GetCurrentActorInfo()->AvatarActor.Get();
-    if (!Avatar)
+    if (!Ability)
     {
-        UE_LOG(LogTemp, Error, TEXT("WallProjectiles: Invalid Avatar!"));
+        UE_LOG(LogTemp, Error, TEXT("WallProjectiles: Invalid owning ability."));
         EndTask();
         return;
     }
 
-    if (!ProjectileClass)
+    const FGameplayAbilityActorInfo* ActorInfo = Ability->GetCurrentActorInfo();
+    AActor* Avatar = ActorInfo ? ActorInfo->AvatarActor.Get() : nullptr;
+
+    if (!Avatar)
     {
-        UE_LOG(LogTemp, Error, TEXT("WallProjectiles: ProjectileClass is NULL!"));
+        UE_LOG(LogTemp, Error, TEXT("WallProjectiles: Invalid Avatar."));
+        EndTask();
+        return;
+    }
+
+    if (!ProjectileClass || !GetWorld())
+    {
+        UE_LOG(LogTemp, Error, TEXT("WallProjectiles: Invalid projectile class or world."));
         EndTask();
         return;
     }
@@ -90,14 +94,14 @@ void UAT_WallProjectiles::SpawnWall()
 
     SpawnOrigin += (Forward * SpawnDistance) + FVector(0.0f, 0.0f, ZOffset);
 
-    float TotalWidth = (NumProjectiles - 1) * ProjectileSpacing;
-    FVector StartOffset = Right * (-TotalWidth * 0.5f);
+    const float TotalWidth = (NumProjectiles - 1) * ProjectileSpacing;
+    const FVector StartOffset = Right * (-TotalWidth * 0.5f);
 
     for (int32 i = 0; i < NumProjectiles; i++)
     {
-        FVector SideOffset = Right * (i * ProjectileSpacing);
-        FVector SpawnLoc = SpawnOrigin + SideOffset;
-        FTransform FinalSpawnTransform(Forward.Rotation(), SpawnLoc);
+        const FVector SideOffset = Right * (i * ProjectileSpacing);
+        const FVector SpawnLoc = SpawnOrigin + StartOffset + SideOffset;
+        const FTransform FinalSpawnTransform(Forward.Rotation(), SpawnLoc);
 
         AWarriorProjectileBase* Proj = GetWorld()->SpawnActorDeferred<AWarriorProjectileBase>(
             ProjectileClass,
@@ -126,12 +130,11 @@ void UAT_WallProjectiles::SetupProjectile(AWarriorProjectileBase* Proj, const FV
 {
     if (!Proj) return;
 
-    FVector Velocity = Direction * Speed;
+    const FVector Velocity = Direction * Speed;
 
     Proj->SetProjectileVelocity(Velocity);
     Proj->SetProjectileSpeed(Speed, Speed * 1.2f);
     Proj->SetProjectileGravityScale(0.0f);
-
     Proj->SetDamageEffectSpecHandle(DamageEffectSpecHandle);
 
     if (NiagaraEffect)
@@ -144,9 +147,12 @@ void UAT_WallProjectiles::SetupProjectile(AWarriorProjectileBase* Proj, const FV
     Proj->SetLifeSpan(ProjectileLifeSpan);
 }
 
-void UAT_WallProjectiles::CleanupAndEnd()
+void UAT_WallProjectiles::CleanupAndEnd(bool bBroadcastComplete)
 {
-    GetWorld()->GetTimerManager().ClearTimer(CompleteTimer);
+    if (GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(CompleteTimer);
+    }
 
     for (AWarriorProjectileBase* Proj : SpawnedProjectiles)
     {
@@ -157,13 +163,17 @@ void UAT_WallProjectiles::CleanupAndEnd()
     }
     SpawnedProjectiles.Empty();
 
-    OnWallComplete.Broadcast();
+    if (bBroadcastComplete)
+    {
+        OnWallComplete.Broadcast();
+    }
+
     EndTask();
 }
 
 void UAT_WallProjectiles::ExternalCancel()
 {
-    CleanupAndEnd();
+    CleanupAndEnd(false);
     Super::ExternalCancel();
 }
 
@@ -173,6 +183,7 @@ void UAT_WallProjectiles::OnDestroy(bool AbilityEnded)
     {
         GetWorld()->GetTimerManager().ClearTimer(CompleteTimer);
     }
+
+    SpawnedProjectiles.Empty();
     Super::OnDestroy(AbilityEnded);
 }
-
