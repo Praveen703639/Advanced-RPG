@@ -78,21 +78,24 @@ A small combat encounter combining player weapons, ranged enemy attacks, boss me
 </tr>
 </table>
 
-Boss Behavior Tree:
-<img width="1600" height="900" alt="Image" src="https://github.com/user-attachments/assets/8782707b-dd89-4ed3-bc94-9dcd44676e34" />
+### 🧠 Boss AI — Behavior Tree
+
+The boss encounter is driven by a Behavior Tree that coordinates combat actions and supporting enemy summons.
+
+<img width="1600" height="900" alt="Boss Behavior Tree" src="https://github.com/user-attachments/assets/8782707b-dd89-4ed3-bc94-9dcd44676e34" />
 
 ### Encounter Flow
 
 ```text
 Player Combat
      ↓
-Ranged Enemies
+Ranged Enemy Pressure
      ↓
-Homing Projectile Pressure
+Homing Projectile Attacks
      ↓
 Boss Encounter
      ↓
-Boss Melee Attack + Summoning
+Boss Melee Attack + Enemy Summoning
      ↓
 Player Clears Summoned Enemies
 ```
@@ -219,7 +222,7 @@ The project uses Unreal's AI framework for combat decision making:
 - Melee and ranged enemy behaviors
 - Boss-specific combat abilities and summon patterns
 
-The boss encounter combines melee attacks, ranged enemy summons and projectile pressure to create a multi-entity combat scenario.
+The **Boss AI showcase above** demonstrates the actual Behavior Tree used for the encounter, so this section focuses on the underlying AI technologies rather than repeating the same visual.
 
 ---
 
