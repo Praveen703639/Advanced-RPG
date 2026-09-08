@@ -78,6 +78,8 @@ A small combat encounter combining player weapons, ranged enemy attacks, boss me
 </tr>
 </table>
 
+Boss Behavior Tree:
+
 ### Encounter Flow
 
 ```text
