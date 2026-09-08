@@ -79,6 +79,7 @@ A small combat encounter combining player weapons, ranged enemy attacks, boss me
 </table>
 
 Boss Behavior Tree:
+<img width="1600" height="900" alt="Image" src="https://github.com/user-attachments/assets/8782707b-dd89-4ed3-bc94-9dcd44676e34" />
 
 ### Encounter Flow
 
