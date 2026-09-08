@@ -13,6 +13,8 @@
 A combat prototype focused on **ability-driven gameplay, responsive combat, enemy AI, boss encounters, and reusable gameplay tasks**.
 
 ---
+showcase:
+<img width="1482" height="846" alt="Image" src="https://github.com/user-attachments/assets/ee7db30c-e9c8-47a2-b073-cfac9fa91455" />
 
 ## 🧠 Engineering Highlights
 
