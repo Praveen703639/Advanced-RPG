@@ -13,16 +13,53 @@
 A combat prototype focused on **ability-driven gameplay, responsive combat, enemy AI, boss encounters, and reusable gameplay tasks**.
 
 ---
-showcase:
 
-PLUCK-OF-MANY
-<img width="1482" height="846" alt="Image" src="https://github.com/user-attachments/assets/ee7db30c-e9c8-47a2-b073-cfac9fa91455" />
+## ⚡ Special Ability Showcase
 
-ALL-HIT
-<img width="1474" height="828" alt="Image" src="https://github.com/user-attachments/assets/1b447033-16f4-4689-936e-09de068f49a8" />
+These abilities are powered by **custom GAS Ability Tasks** written in C++. The screenshots below show the systems running in-game.
 
-CIRCLING-WOLVES
-<img width="1492" height="826" alt="Image" src="https://github.com/user-attachments/assets/51e3e994-105e-42c1-af06-9422a1dba44c" />
+<table>
+<tr>
+<td width="33%" align="center">
+<strong>Pluck of Many</strong><br><br>
+<img src="https://github.com/user-attachments/assets/ee7db30c-e9c8-47a2-b073-cfac9fa91455" width="100%" alt="Pluck of Many ability showcase">
+<br><br>
+<sub>Clone spawning, targeting and gameplay orchestration.</sub>
+</td>
+<td width="33%" align="center">
+<strong>All-Hit Wolves</strong><br><br>
+<img src="https://github.com/user-attachments/assets/1b447033-16f4-4689-936e-09de068f49a8" width="100%" alt="All-Hit Wolves ability showcase">
+<br><br>
+<sub>Multi-entity attack execution driven by a custom ability task.</sub>
+</td>
+<td width="33%" align="center">
+<strong>Circling Wolves</strong><br><br>
+<img src="https://github.com/user-attachments/assets/51e3e994-105e-42c1-af06-9422a1dba44c" width="100%" alt="Circling Wolves ability showcase">
+<br><br>
+<sub>Timed movement and coordinated combat behavior.</sub>
+</td>
+</tr>
+</table>
+
+### What is happening behind the scenes?
+
+```text
+Input / Gameplay Event
+        ↓
+Gameplay Ability
+        ↓
+Custom GAS Ability Task
+        ↓
+Spawn / Move / Target / Execute
+        ↓
+Gameplay Effects + Damage
+        ↓
+Cleanup / Ability Completion
+```
+
+The important part is that these are not one-off character functions. The complex asynchronous gameplay operations are encapsulated inside reusable **`UAbilityTask`** implementations.
+
+---
 
 ## 🧠 Engineering Highlights
 
