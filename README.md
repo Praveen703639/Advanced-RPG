@@ -41,6 +41,9 @@ These abilities are powered by **custom GAS Ability Tasks** written in C++. The 
 </tr>
 </table>
 
+Basic Character with Three Weapons In World
+
+
 ### What is happening behind the scenes?
 
 ```text
