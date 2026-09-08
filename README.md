@@ -47,6 +47,10 @@ Basic Character with Three Weapons In World :
 Ranged Enemies Spawning Homing Projectiles :
 <img width="1480" height="842" alt="Image" src="https://github.com/user-attachments/assets/68afb58d-128d-4a4c-bdb2-5568181b985c" />
 
+Boss Attack With Hands :
+<img width="1494" height="844" alt="Image" src="https://github.com/user-attachments/assets/6b61dfa7-ead7-4cb4-ad9c-6096fe945631" />
+
+
 ### What is happening behind the scenes?
 
 ```text
