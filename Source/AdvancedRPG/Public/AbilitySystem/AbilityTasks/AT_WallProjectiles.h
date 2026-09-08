@@ -1,5 +1,3 @@
-// pravin's  patashala all Rights Reserved 
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -65,8 +63,5 @@ protected:
 
     void SpawnWall();
     void SetupProjectile(AWarriorProjectileBase* Proj, const FVector& Direction);
-    void CleanupAndEnd();
+    void CleanupAndEnd(bool bBroadcastComplete);
 };
-
-
-
