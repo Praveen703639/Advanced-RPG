@@ -41,8 +41,8 @@ These abilities are powered by **custom GAS Ability Tasks** written in C++. The 
 </tr>
 </table>
 
-Basic Character with Three Weapons In World
-
+Basic Character with Three Weapons In World :
+<img width="1482" height="826" alt="Image" src="https://github.com/user-attachments/assets/a589f349-1ffd-4c2d-90ff-98933f3dfde4" />
 
 ### What is happening behind the scenes?
 
