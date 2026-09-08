@@ -50,6 +50,8 @@ Ranged Enemies Spawning Homing Projectiles :
 Boss Attack With Hands :
 <img width="1494" height="844" alt="Image" src="https://github.com/user-attachments/assets/6b61dfa7-ead7-4cb4-ad9c-6096fe945631" />
 
+Boss Summoning Ranged Enemies :
+<img width="1492" height="838" alt="Image" src="https://github.com/user-attachments/assets/a831e53f-3a83-446e-8194-26b6b0c35519" />
 
 ### What is happening behind the scenes?
 
